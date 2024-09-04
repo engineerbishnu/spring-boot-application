@@ -6,8 +6,6 @@ pipeline {
         KUBE_CREDENTIALS_ID = "kubeconfig-id"
         IMAGE_TAG = "${env.DOCKER_IMAGE}:${env.BUILD_ID}"
         NGINX_IMAGE_TAG = "${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}"
-        DOCKER_NGINX_FILE = 'Dockerfile.nginx'
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
     stages {
         stage('Checkout') {
@@ -37,7 +35,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
-                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f ${env.DOCKER_NGINX_FILE} .")
+                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
                         
                         // Push the image with BUILD_ID tag
                         nginxImage.push()
