@@ -31,16 +31,21 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Images with Docker Compose') {
+        stage('Build and Push Nginx Image') {
             steps {
                 script {
-                    sh "docker-compose -f ${env.DOCKER_COMPOSE_FILE} build"
+                    def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
+                    withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
+                        nginxImage.push()
+                        nginxImage.push("latest")
+                    }
                 }
             }
         }
         stage('Deploy with Docker Compose') {
             steps {
                 script {
+                    sh "docker-compose -f ${env.DOCKER_COMPOSE_FILE} pull"
                     sh "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d"
                 }
             }
@@ -48,7 +53,7 @@ pipeline {
         stage('Provision to Kubernetes') {
             steps {
                 script {
-                    sh "sed 's|IMAGE_TAG|${env.DOCKER_IMAGE}:${env.BUILD_ID}|g' kubernetes-deployment.yaml > k8s-deployment-updated.yaml"
+                    sh "sed -e 's|IMAGE_TAG|${env.DOCKER_IMAGE}:${env.BUILD_ID}|g' -e 's|NGINX_IMAGE_TAG|${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}|g' kubernetes-deployment.yaml > k8s-deployment-updated.yaml"
                     kubeconfig(credentialsId: "${env.KUBE_CREDENTIALS_ID}") {
                         sh 'kubectl apply -f k8s-deployment-updated.yaml'
                     }
