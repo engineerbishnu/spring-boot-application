@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: spring-boot-application
-        image: IMAGE_TAG
+        image: SPRING_BOOT_IMAGE_TAG
         ports:
         - containerPort: 8080
         resources:
