@@ -34,19 +34,16 @@ pipeline {
         stage('Build and Push Nginx Image') {
             steps {
                 script {
-                    def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
                     withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
+                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
+                        
+                        // Push the image with BUILD_ID tag
                         nginxImage.push()
-                        nginxImage.push("latest")
+                        
+                        // Create and push the 'latest' tag
+                        sh "docker tag ${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID} ${env.DOCKER_IMAGE}-nginx:latest"
+                        sh "docker push ${env.DOCKER_IMAGE}-nginx:latest"
                     }
-                }
-            }
-        }
-        stage('Deploy with Docker Compose') {
-            steps {
-                script {
-                    sh "docker-compose -f ${env.DOCKER_COMPOSE_FILE} pull"
-                    sh "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d"
                 }
             }
         }
