@@ -5,6 +5,9 @@ pipeline {
         DOCKER_CREDENTIALS_ID = "dockerhub-credentials"
         KUBE_CREDENTIALS_ID = "kubeconfig-id"
         SPRING_BOOT_IMAGE_TAG = "${env.SPRING_BOOT_IMAGE}:${env.BUILD_ID}"
+        HELM_CHART_REPO = "https://kubernetes.github.io/ingress-nginx" // NGINX Ingress Controller Helm repo
+        HELM_RELEASE_NAME = "nginx-ingress"
+        NAMESPACE = "development" // Namespace for both Ingress Controller and application
     }
     stages {
         stage('Checkout') {
@@ -30,7 +33,21 @@ pipeline {
                 }
             }
         }
-        stage('Provision to Kubernetes') {
+        stage('Provision NGINX Ingress Controller') {
+            steps {
+                script {
+                    kubeconfig(credentialsId: "${env.KUBE_CREDENTIALS_ID}") {
+                        // Add Helm repository
+                        sh "helm repo add ingress-nginx ${env.HELM_CHART_REPO}"
+                        sh "helm repo update"
+
+                        // Install or upgrade NGINX Ingress Controller in the 'development' namespace
+                        sh "helm upgrade --install ${env.HELM_RELEASE_NAME} ingress-nginx/ingress-nginx --namespace ${env.NAMESPACE} --create-namespace"
+                    }
+                }
+            }
+        }
+        stage('Provision Spring Boot Application') {
             steps {
                 script {
                     sh "sed -e 's|SPRING_BOOT_IMAGE_TAG|${env.SPRING_BOOT_IMAGE_TAG}|g' kubernetes-deployment.yaml > k8s-deployment-updated.yaml"
