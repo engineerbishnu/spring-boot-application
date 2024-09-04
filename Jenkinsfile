@@ -20,7 +20,7 @@ pipeline {
                 }
             }
         }
-        stage('Push Docker Image') {
+        stage('Push Spring-Boot-Application Docker Image') {
             steps {
                 script {
                     withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
@@ -31,7 +31,7 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Nginx Image') {
+        stage('Build and Push Nginx-Reverse-Proxy Image') {
             steps {
                 script {
                     withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
@@ -40,6 +40,24 @@ pipeline {
                         // Push the image with BUILD_ID tag
                         nginxImage.push()
                         
+                        // Create and push the 'latest' tag
+                        sh "docker tag ${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID} ${env.DOCKER_IMAGE}-nginx:latest"
+                        sh "docker push ${env.DOCKER_IMAGE}-nginx:latest"
+                    }
+                }
+            }
+        }
+        stage('Build and Push Nginx Image') {
+            steps {
+                script {
+                    withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
+                        // Build the Nginx image using the Dockerfile.nginx file
+                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
+
+                        // Push the image with BUILD_ID tag
+
+                        nginxImage.push()
+
                         // Create and push the 'latest' tag
                         sh "docker tag ${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID} ${env.DOCKER_IMAGE}-nginx:latest"
                         sh "docker push ${env.DOCKER_IMAGE}-nginx:latest"
