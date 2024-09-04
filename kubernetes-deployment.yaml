@@ -37,14 +37,13 @@ metadata:
   name: spring-boot-application-service
   namespace: development
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: spring-boot-application
   ports:
   - protocol: TCP
     port: 8080
     targetPort: 8080
-    nodePort: 30001
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -99,7 +98,7 @@ data:
     server {
       listen 80;
       location / {
-        proxy_pass http://spring-boot-application-service:30001;
+        proxy_pass http://spring-boot-application-service:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
