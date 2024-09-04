@@ -53,6 +53,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx-ingress-ingress-nginx-controller
   rules:
   - host: devops-sample.test
     http:
@@ -64,3 +65,4 @@ spec:
             name: spring-boot-application-service
             port:
               number: 8080
+
