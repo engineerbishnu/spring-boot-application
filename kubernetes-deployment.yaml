@@ -54,7 +54,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: yourdomain.com  # Replace with your domain or use a wildcard like '*.example.com'
+  - host: devops-sample.test
     http:
       paths:
       - path: /
