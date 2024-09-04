@@ -1,0 +1,16 @@
+server:
+  servlet:
+    context-path: /api/v1/devops-sample
+  port: 8080
+
+spring:
+  application:
+    name: devops-sample
+
+
+
+
+
+
+
+
