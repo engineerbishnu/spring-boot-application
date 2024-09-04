@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: YOUR_NGINX_IMAGE_TAG
+        image: IMAGE_TAG
         ports:
         - containerPort: 80
         volumeMounts:
