@@ -5,6 +5,8 @@ pipeline {
         DOCKER_CREDENTIALS_ID = "dockerhub-credentials"
         KUBE_CREDENTIALS_ID = "kubeconfig-id"
         IMAGE_TAG = "${env.DOCKER_IMAGE}:${env.BUILD_ID}"
+        NGINX_IMAGE_TAG = "${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}"
+        DOCKER_NGINX_FILE = 'Dockerfile.nginx'
         DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
     stages {
@@ -35,29 +37,11 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
-                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
+                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f ${env.DOCKER_NGINX_FILE} .")
                         
                         // Push the image with BUILD_ID tag
                         nginxImage.push()
                         
-                        // Create and push the 'latest' tag
-                        sh "docker tag ${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID} ${env.DOCKER_IMAGE}-nginx:latest"
-                        sh "docker push ${env.DOCKER_IMAGE}-nginx:latest"
-                    }
-                }
-            }
-        }
-        stage('Build and Push Nginx Image') {
-            steps {
-                script {
-                    withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
-                        // Build the Nginx image using the Dockerfile.nginx file
-                        def nginxImage = docker.build("${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID}", "-f Dockerfile.nginx .")
-
-                        // Push the image with BUILD_ID tag
-
-                        nginxImage.push()
-
                         // Create and push the 'latest' tag
                         sh "docker tag ${env.DOCKER_IMAGE}-nginx:${env.BUILD_ID} ${env.DOCKER_IMAGE}-nginx:latest"
                         sh "docker push ${env.DOCKER_IMAGE}-nginx:latest"
