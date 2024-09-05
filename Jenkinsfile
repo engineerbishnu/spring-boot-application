@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         SPRING_BOOT_IMAGE = "engineer442/spring-boot-application"
+        NGINX_IMAGE= "engineer442/nginx-reverse-proxy"
         DOCKER_CREDENTIALS_ID = "dockerhub-credentials"
         KUBE_CREDENTIALS_ID = "kubeconfig-id"
         SPRING_BOOT_IMAGE_TAG = "${env.SPRING_BOOT_IMAGE}:${env.BUILD_ID}"
