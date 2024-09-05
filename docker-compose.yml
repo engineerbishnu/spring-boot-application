@@ -1,11 +1,11 @@
 version: '3'
 services:
   app:
-    image: engineer442/spring-boot-application:${BUILD_ID}
+    image: engineer442/spring-boot-application:latest
     ports:
       - "8080"
   nginx:
-    image: engineer442/nginx-reverse-proxy:${BUILD_ID}
+    image: nginx:latest
     ports:
       - "80:80"
     depends_on:
