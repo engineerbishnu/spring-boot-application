@@ -1,3 +1,2 @@
 FROM nginx:latest
-#COPY nginx.conf /etc/nginx/nginx.conf
-# config file is optional, if we want to manage config from kubernetes as configmap, we can provide it in deployment manifest file.
+COPY nginx.conf /etc/nginx/nginx.conf
