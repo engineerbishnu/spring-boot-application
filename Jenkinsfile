@@ -6,6 +6,7 @@ pipeline {
         KUBE_CREDENTIALS_ID = "kubeconfig-id"
         SPRING_BOOT_IMAGE_TAG = "${env.SPRING_BOOT_IMAGE}:${env.BUILD_ID}"
         NAMESPACE = "development"
+        NGINX_IMAGE_TAG = "${env.NGINX_IMAGE}:${env.BUILD_ID}"
     }
     stages {
         stage('Checkout') {
@@ -27,6 +28,23 @@ pipeline {
                         sh "docker tag ${env.SPRING_BOOT_IMAGE_TAG} ${env.SPRING_BOOT_IMAGE}:latest"
                         sh "docker push ${env.SPRING_BOOT_IMAGE_TAG}"
                         sh "docker push ${env.SPRING_BOOT_IMAGE}:latest"
+                    }
+                }
+            }
+        }
+        stage('Build and Push Nginx Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry([credentialsId: "${env.DOCKER_CREDENTIALS_ID}"]) {
+                        def nginxImage = docker.build("${env.NGINX_IMAGE_TAG}", "-f Dockerfile.nginx .")
+
+                        // Push the image with BUILD_ID tag
+                        nginxImage.push()
+
+                        // Create and push the 'latest' tag
+                        sh "docker tag ${env.NGINX_IMAGE_TAG} ${env.NGINX_IMAGE}:latest"
+                        sh "docker push ${env.NGINX_IMAGE_TAG}"
+                        sh "docker push ${env.NGINX_IMAGE}:latest"
                     }
                 }
             }
