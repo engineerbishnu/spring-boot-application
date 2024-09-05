@@ -53,7 +53,7 @@ pipeline {
         stage('Provision Spring Boot Application With Kubernetes') {
             steps {
                 script {
-                    sh "sed -e 's|SPRING_BOOT_IMAGE_TAG|${env.SPRING_BOOT_IMAGE_TAG}|g' kubernetes-deployment.yaml > k8s-deployment-updated.yaml"
+                    sh "sed -e 's|SPRING_BOOT_IMAGE_TAG|${env.SPRING_BOOT_IMAGE_TAG}|g' -e 's|NGINX_IMAGE_TAG|${env.NGINX_IMAGE_TAG}|g' kubernetes-deployment.yaml > k8s-deployment-updated.yaml"
                     kubeconfig(credentialsId: "${env.KUBE_CREDENTIALS_ID}") {
                         sh 'kubectl apply -f k8s-deployment-updated.yaml'
                     }
@@ -73,6 +73,8 @@ pipeline {
                 // Remove local Docker images to free up space
                 sh "docker rmi ${env.SPRING_BOOT_IMAGE_TAG} || true"
                 sh "docker rmi ${env.SPRING_BOOT_IMAGE}:latest || true"
+                sh "docker rmi ${env.NGINX_IMAGE_TAG} || true"
+                sh "docker rmi ${env.NGINX_IMAGE}:latest || true"
             }
         }
     }
