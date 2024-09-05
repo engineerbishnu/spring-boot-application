@@ -55,8 +55,6 @@ pipeline {
                 // Remove local Docker images to free up space
                 sh "docker rmi ${env.SPRING_BOOT_IMAGE_TAG} || true"
                 sh "docker rmi ${env.SPRING_BOOT_IMAGE}:latest || true"
-                sh "docker rmi ${env.NGINX_IMAGE_TAG} || true"
-                sh "docker rmi ${env.NGINX_IMAGE}:latest || true"
             }
         }
     }
