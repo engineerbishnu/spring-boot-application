@@ -3,7 +3,7 @@ services:
   app:
     image: engineer442/spring-boot-application:${BUILD_ID}
     ports:
-      - "9091:8080"
+      - "8080"
   nginx:
     image: engineer442/spring-boot-application-nginx:${BUILD_ID}
     ports:
