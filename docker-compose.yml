@@ -5,7 +5,7 @@ services:
     ports:
       - "8080"
   nginx:
-    image: engineer442/spring-boot-application-nginx:${BUILD_ID}
+    image: engineer442/nginx-reverse-proxy:${BUILD_ID}
     ports:
       - "80:80"
     depends_on:
