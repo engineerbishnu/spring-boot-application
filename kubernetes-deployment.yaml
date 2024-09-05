@@ -44,25 +44,4 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: spring-boot-ingress
-  namespace: development
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx-ingress-ingress-nginx-controller
-  rules:
-  - host: devops-sample.test
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: spring-boot-application-service
-            port:
-              number: 80
 
