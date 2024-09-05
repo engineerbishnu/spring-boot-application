@@ -64,5 +64,5 @@ spec:
           service:
             name: spring-boot-application-service
             port:
-              number: 8080
+              number: 80
 
