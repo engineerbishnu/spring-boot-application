@@ -45,27 +45,6 @@ spec:
     port: 8080
     targetPort: 8080
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx
-  namespace: development
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:latest  # Pulls the latest NGINX image from Docker Hub
-        ports:
-        - containerPort: 80
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -84,6 +63,35 @@ data:
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
 ---
 apiVersion: v1
 kind: Service
