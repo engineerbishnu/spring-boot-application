@@ -48,30 +48,42 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-reverse-proxy
+  name: nginx
   namespace: development
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx-reverse-proxy
+      app: nginx
   template:
     metadata:
       labels:
-        app: nginx-reverse-proxy
+        app: nginx
     spec:
       containers:
-      - name: nginx-reverse-proxy
-        image: NGINX_IMAGE_TAG
+      - name: nginx
+        image: nginx:latest  # Pulls the latest NGINX image from Docker Hub
         ports:
         - containerPort: 80
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: development
+data:
+  nginx.conf: |
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://spring-boot-service:8080;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
 ---
 apiVersion: v1
 kind: Service
@@ -79,31 +91,11 @@ metadata:
   name: nginx-service
   namespace: development
 spec:
-  type: ClusterIP
   selector:
-    app: nginx-reverse-proxy
+    app: nginx
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: spring-boot-ingress
-  namespace: development
-  annotations:
-    spec.ingressClassName: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-spec:
-  rules:
-  - host: devops-sample.test
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: nginx-service
-            port: 
-              number: 80
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
